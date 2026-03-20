@@ -152,6 +152,8 @@ export default function PlayPage() {
   function getPlayerStats(player) {
     const playerScores = scores.filter(s => s.round_player_id === player.id)
     let totalPoints = 0
+    let front9Points = 0
+    let back9Points = 0
     let totalGross = 0
     let holesPlayed = 0
 
@@ -161,9 +163,11 @@ export default function PlayPage() {
       totalPoints += pts
       totalGross += s.gross_score
       holesPlayed++
+      if (s.hole.hole_number <= 9) front9Points += pts
+      else back9Points += pts
     })
 
-    return { totalPoints, totalGross, holesPlayed, scores: playerScores }
+    return { totalPoints, front9Points, back9Points, totalGross, holesPlayed, scores: playerScores }
   }
 
   function getLeaderboard() {
@@ -283,16 +287,36 @@ export default function PlayPage() {
                     {player.profile?.display_name?.[0]?.toUpperCase() ?? '?'}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: 15, fontWeight: 500 }}>{player.profile?.display_name}</p>
+                    <p style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <span style={{ fontSize: 15, fontWeight: 500 }}>{player.profile?.display_name}</span>
+                    </p>
                     <p style={{ fontSize: 12, color: 'var(--gray-500)' }}>
                       {player.holesPlayed} hole{player.holesPlayed !== 1 ? 's' : ''} · hcp {player.playing_handicap}
                     </p>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <p style={{ fontSize: 24, fontWeight: 700, fontFamily: 'var(--font-mono)', color: 'var(--green-700)', lineHeight: 1 }}>
-                      {player.totalPoints}
-                    </p>
-                    <p style={{ fontSize: 11, color: 'var(--gray-500)' }}>pts</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    {player.holesPlayed > 0 && (
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginBottom: 2 }}>
+                          {player.holesPlayed > 0 && (
+                            <span style={{ fontSize: 11, color: 'var(--gray-400)' }}>
+                              <span style={{ color: 'var(--gray-500)', fontWeight: 500 }}>F</span> {player.front9Points}
+                            </span>
+                          )}
+                          {player.holesPlayed > 9 && (
+                            <span style={{ fontSize: 11, color: 'var(--gray-400)' }}>
+                              <span style={{ color: 'var(--gray-500)', fontWeight: 500 }}>B</span> {player.back9Points}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    <div style={{ textAlign: 'right' }}>
+                      <p style={{ fontSize: 24, fontWeight: 700, fontFamily: 'var(--font-mono)', color: 'var(--green-700)', lineHeight: 1 }}>
+                        {player.totalPoints}
+                      </p>
+                      <p style={{ fontSize: 11, color: 'var(--gray-500)' }}>pts</p>
+                    </div>
                   </div>
                 </div>
 
