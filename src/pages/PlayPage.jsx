@@ -270,81 +270,78 @@ export default function PlayPage() {
         {/* LEADERBOARD TAB */}
         {tab === 'Leaderboard' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {leaderboard.map((player, rank) => (
-              <div
-                key={player.id}
-                className="card"
-                style={{
-                  padding: '12px 16px',
-                  border: player.profile_id === user.id ? '1.5px solid var(--green-500)' : undefined,
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ fontSize: 18, fontWeight: 700, fontFamily: 'var(--font-mono)', color: 'var(--gray-300)', width: 24 }}>
-                    {rank + 1}
-                  </div>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--green-100)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600, color: 'var(--green-700)', flexShrink: 0 }}>
-                    {player.profile?.display_name?.[0]?.toUpperCase() ?? '?'}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <span style={{ fontSize: 15, fontWeight: 500 }}>{player.profile?.display_name}</span>
-                    </p>
-                    <p style={{ fontSize: 12, color: 'var(--gray-500)' }}>
-                      {player.holesPlayed} hole{player.holesPlayed !== 1 ? 's' : ''} · hcp {player.playing_handicap}
-                    </p>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    {player.holesPlayed > 0 && (
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'flex-end', marginBottom: 2 }}>
-                          <span style={{ fontSize: 12, color: 'var(--gray-600)' }}>
-                            <span style={{ fontWeight: 600 }}>F9</span> {player.front9Points}
-                          </span>
-                          {player.holesPlayed > 9 && (
-                            <span style={{ fontSize: 12, color: 'var(--gray-600)' }}>
-                              <span style={{ fontWeight: 600 }}>B9</span> {player.back9Points}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                    <div style={{ textAlign: 'right' }}>
-                      <p style={{ fontSize: 24, fontWeight: 700, fontFamily: 'var(--font-mono)', color: 'var(--green-700)', lineHeight: 1 }}>
-                        {player.totalPoints}
+            {leaderboard.map((player, rank) => {
+              const stats = getPlayerStats(player)
+              return (
+                <div
+                  key={player.id}
+                  className="card"
+                  style={{
+                    padding: '12px 16px',
+                    border: player.profile_id === user.id ? '1.5px solid var(--green-500)' : undefined,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ fontSize: 18, fontWeight: 700, fontFamily: 'var(--font-mono)', color: 'var(--gray-300)', width: 24 }}>
+                      {rank + 1}
+                    </div>
+                    <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--green-100)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600, color: 'var(--green-700)', flexShrink: 0 }}>
+                      {player.profile?.display_name?.[0]?.toUpperCase() ?? '?'}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: 15, fontWeight: 500 }}>{player.profile?.display_name}</p>
+                      <p style={{ fontSize: 12, color: 'var(--gray-500)' }}>
+                        {stats.holesPlayed} hole{stats.holesPlayed !== 1 ? 's' : ''} · hcp {player.playing_handicap}
                       </p>
-                      <p style={{ fontSize: 11, color: 'var(--gray-500)' }}>pts</p>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      {stats.holesPlayed > 0 && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'flex-end' }}>
+                          <span style={{ fontSize: 12, color: 'var(--gray-700)' }}>
+                            <span style={{ fontWeight: 600 }}>F9</span> {stats.front9Points}
+                          </span>
+                          <span style={{ fontSize: 12, color: stats.holesPlayed > 9 ? 'var(--gray-700)' : 'var(--gray-300)' }}>
+                            <span style={{ fontWeight: 600 }}>B9</span> {stats.holesPlayed > 9 ? stats.back9Points : '–'}
+                          </span>
+                        </div>
+                      )}
+                      <div style={{ textAlign: 'right' }}>
+                        <p style={{ fontSize: 24, fontWeight: 700, fontFamily: 'var(--font-mono)', color: 'var(--green-700)', lineHeight: 1 }}>
+                          {stats.totalPoints}
+                        </p>
+                        <p style={{ fontSize: 11, color: 'var(--gray-500)' }}>pts</p>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Mini hole-by-hole dots */}
-                {player.holesPlayed > 0 && (
-                  <div style={{ display: 'flex', gap: 3, marginTop: 10, flexWrap: 'wrap' }}>
-                    {holes.map(hole => {
-                      const s = player.scores.find(sc => sc.hole?.hole_number === hole.hole_number)
-                      const pts = s ? stablefordPoints(s.gross_score, hole.par, hole.stroke_index, player.playing_handicap) : null
-                      return (
-                        <div
-                          key={hole.hole_number}
-                          title={`Hole ${hole.hole_number}: ${s ? `${s.gross_score} (${pts} pts)` : 'not played'}`}
-                          style={{
-                            width: 22, height: 22,
-                            borderRadius: 4,
-                            background: pts === null ? 'var(--gray-100)' : pts >= 3 ? '#1D9E75' : pts === 2 ? 'var(--green-100)' : pts === 1 ? 'var(--amber-100)' : 'var(--red-100)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: 10, fontWeight: 600,
-                            color: pts === null ? 'var(--gray-300)' : pts >= 3 ? 'white' : pts === 2 ? 'var(--green-700)' : pts === 1 ? 'var(--amber-500)' : 'var(--red-500)',
-                          }}
-                        >
-                          {pts !== null ? pts : '·'}
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
-              </div>
-            ))}
+                  {/* Mini hole-by-hole dots */}
+                  {stats.holesPlayed > 0 && (
+                    <div style={{ display: 'flex', gap: 3, marginTop: 10, flexWrap: 'wrap' }}>
+                      {holes.map(hole => {
+                        const s = stats.scores.find(sc => sc.hole?.hole_number === hole.hole_number)
+                        const pts = s ? stablefordPoints(s.gross_score, hole.par, hole.stroke_index, player.playing_handicap) : null
+                        return (
+                          <div
+                            key={hole.hole_number}
+                            title={`Hole ${hole.hole_number}: ${s ? `${s.gross_score} (${pts} pts)` : 'not played'}`}
+                            style={{
+                              width: 22, height: 22,
+                              borderRadius: 4,
+                              background: pts === null ? 'var(--gray-100)' : pts >= 3 ? '#1D9E75' : pts === 2 ? 'var(--green-100)' : pts === 1 ? 'var(--amber-100)' : 'var(--red-100)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontSize: 10, fontWeight: 600,
+                              color: pts === null ? 'var(--gray-300)' : pts >= 3 ? 'white' : pts === 2 ? 'var(--green-700)' : pts === 1 ? 'var(--amber-500)' : 'var(--red-500)',
+                            }}
+                          >
+                            {pts !== null ? pts : '·'}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
         )}
 
