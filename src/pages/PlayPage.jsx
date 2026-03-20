@@ -297,15 +297,13 @@ export default function PlayPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     {player.holesPlayed > 0 && (
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginBottom: 2 }}>
-                          {player.holesPlayed > 0 && (
-                            <span style={{ fontSize: 11, color: 'var(--gray-400)' }}>
-                              <span style={{ color: 'var(--gray-500)', fontWeight: 500 }}>F</span> {player.front9Points}
-                            </span>
-                          )}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'flex-end', marginBottom: 2 }}>
+                          <span style={{ fontSize: 12, color: 'var(--gray-600)' }}>
+                            <span style={{ fontWeight: 600 }}>F9</span> {player.front9Points}
+                          </span>
                           {player.holesPlayed > 9 && (
-                            <span style={{ fontSize: 11, color: 'var(--gray-400)' }}>
-                              <span style={{ color: 'var(--gray-500)', fontWeight: 500 }}>B</span> {player.back9Points}
+                            <span style={{ fontSize: 12, color: 'var(--gray-600)' }}>
+                              <span style={{ fontWeight: 600 }}>B9</span> {player.back9Points}
                             </span>
                           )}
                         </div>
