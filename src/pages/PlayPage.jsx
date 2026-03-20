@@ -35,12 +35,27 @@ export default function PlayPage() {
     if (!players.length) return
 
     const sub = supabase
-      .channel(`play-scores-${roundId}`)
+      .channel(`play-scores-${roundId}-${Date.now()}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'scores' }, () => fetchScores(players))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'round_players', filter: `round_id=eq.${roundId}` }, fetchAll)
       .subscribe()
 
-    return () => supabase.removeChannel(sub)
+    // Reconnect when tab becomes visible again (mobile fix)
+    function handleVisibilityChange() {
+      if (document.visibilityState === 'visible') {
+        fetchScores(players)
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    // Poll every 15s as a fallback for mobile browsers that kill websockets
+    const poll = setInterval(() => fetchScores(players), 15000)
+
+    return () => {
+      supabase.removeChannel(sub)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      clearInterval(poll)
+    }
   }, [players])
 
   // When hole changes, pre-fill with par or existing score

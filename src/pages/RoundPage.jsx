@@ -17,7 +17,7 @@ export default function RoundPage() {
     fetchRound()
 
     const sub = supabase
-      .channel(`lobby-${roundId}`)
+      .channel(`lobby-${roundId}-${Date.now()}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'round_players', filter: `round_id=eq.${roundId}` }, fetchPlayers)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'rounds', filter: `id=eq.${roundId}` }, (payload) => {
         setRound(payload.new)
@@ -25,7 +25,18 @@ export default function RoundPage() {
       })
       .subscribe()
 
-    return () => supabase.removeChannel(sub)
+    function handleVisibilityChange() {
+      if (document.visibilityState === 'visible') fetchPlayers()
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    const poll = setInterval(fetchPlayers, 15000)
+
+    return () => {
+      supabase.removeChannel(sub)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      clearInterval(poll)
+    }
   }, [roundId])
 
   async function fetchRound() {
@@ -44,10 +55,11 @@ export default function RoundPage() {
   }
 
   async function fetchPlayers() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('round_players')
       .select('*, profile:profiles(display_name)')
       .eq('round_id', roundId)
+    console.log('fetchPlayers result:', data, error)
     setPlayers(data ?? [])
   }
 
