@@ -328,7 +328,7 @@ export default function PlayPage() {
 
         {/* SCORECARD TAB */}
         {tab === 'Scorecard' && (
-          <div>
+          <div style={{ margin: '0 -16px' }}>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
