@@ -55,7 +55,7 @@ export default function CreateRoundPage() {
       .single()
 
     if (error) { setError(error.message); setLoading(false); return }
-    navigate(`/round/${data.id}/join`)
+    navigate(`/round/${data.id}/betting`, { state: { roundId: data.id } })
   }
 
   const allowanceOptions = [

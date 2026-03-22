@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 import { resolvePlayingHandicap } from '../lib/scoring'
@@ -8,6 +8,8 @@ export default function JoinRoundPage() {
   const { roundId } = useParams()
   const { user, profile } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const bettingState = location.state ?? {}
 
   const [round, setRound] = useState(null)
   const [alreadyJoined, setAlreadyJoined] = useState(false)
@@ -19,9 +21,7 @@ export default function JoinRoundPage() {
   const [override, setOverride] = useState('')
   const [useOverride, setUseOverride] = useState(false)
 
-  useEffect(() => {
-    fetchRound()
-  }, [roundId])
+  useEffect(() => { fetchRound() }, [roundId])
 
   async function fetchRound() {
     const { data, error } = await supabase
@@ -33,12 +33,8 @@ export default function JoinRoundPage() {
     if (error || !data) { setError('Round not found.'); setLoading(false); return }
     setRound(data)
 
-    // Pre-fill exact handicap from profile
-    if (profile?.default_handicap) {
-      setExactHandicap(String(profile.default_handicap))
-    }
+    if (profile?.default_handicap) setExactHandicap(String(profile.default_handicap))
 
-    // Check if already joined
     const { data: existing } = await supabase
       .from('round_players')
       .select('id')
@@ -46,10 +42,17 @@ export default function JoinRoundPage() {
       .eq('profile_id', user.id)
       .single()
 
-    if (existing) {
-      setAlreadyJoined(true)
-      navigate(`/round/${roundId}`)
-      return
+    if (existing) { navigate(`/round/${roundId}`); return }
+
+    // Save betting details if coming from betting setup
+    if (bettingState.bettingFormat !== undefined) {
+      await supabase
+        .from('rounds')
+        .update({
+          stake_pence: bettingState.stakePence ?? 0,
+          betting_format: bettingState.bettingFormat ?? 'none',
+        })
+        .eq('id', roundId)
     }
 
     setLoading(false)

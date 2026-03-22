@@ -85,6 +85,24 @@ export default function RoundPage() {
         </div>
       </div>
 
+      {/* Betting info — visible to all, read only */}
+      {round?.betting_format && round.betting_format !== 'none' && (
+        <div className="card" style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <p style={{ fontSize: 13, color: 'var(--gray-500)', marginBottom: 2 }}>Betting</p>
+            <p style={{ fontSize: 14, fontWeight: 500 }}>
+              {round.betting_format === 'overall_only' ? 'Overall only' : 'Front 9, Back 9 & Overall'}
+            </p>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <p style={{ fontSize: 13, color: 'var(--gray-500)', marginBottom: 2 }}>Stake</p>
+            <p style={{ fontSize: 18, fontWeight: 700, fontFamily: 'var(--font-mono)', color: 'var(--green-700)' }}>
+              £{((round.stake_pence ?? 0) / 100).toFixed(2)}
+            </p>
+          </div>
+        </div>
+      )}
+
       <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
         Players joined ({players.length})
       </h2>
