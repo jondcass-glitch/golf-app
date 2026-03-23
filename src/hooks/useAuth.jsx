@@ -44,6 +44,21 @@ export function AuthProvider({ children }) {
     return { error }
   }
 
+  async function signInAsGuest(displayName) {
+    const { data, error } = await supabase.auth.signInAnonymously()
+    if (error) return { error }
+
+    // Create profile with their chosen name
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({ display_name: displayName.trim() })
+      .eq('id', data.user.id)
+
+    if (profileError) return { error: profileError }
+    await fetchProfile(data.user.id)
+    return { error: null }
+  }
+
   async function signOut() {
     await supabase.auth.signOut()
   }
@@ -60,7 +75,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signInWithEmail, signOut, updateProfile }}>
+    <AuthContext.Provider value={{ user, profile, loading, signInWithEmail, signInAsGuest, signOut, updateProfile }}>
       {children}
     </AuthContext.Provider>
   )

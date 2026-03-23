@@ -4,12 +4,14 @@ import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 
 export default function HomePage() {
-  const { profile, signOut } = useAuth()
+  const { profile, user, signOut } = useAuth()
   const navigate = useNavigate()
   const [joinCode, setJoinCode] = useState('')
   const [joining, setJoining] = useState(false)
   const [joinError, setJoinError] = useState(null)
   const [activeRound, setActiveRound] = useState(null)
+
+  const isGuest = user?.is_anonymous === true
 
   useEffect(() => {
     if (profile?.id) checkForActiveRound()
@@ -88,7 +90,20 @@ export default function HomePage() {
         </div>
       )}
 
+      {/* Guest upgrade banner */}
+      {isGuest && (
+        <div className="card" style={{ background: 'var(--amber-100,#fef3c7)', border: '1px solid #fde68a', marginBottom: 16 }}>
+          <p style={{ fontSize: 14, fontWeight: 500, color: '#92400e', marginBottom: 4 }}>You're signed in as a guest</p>
+          <p style={{ fontSize: 13, color: '#b45309', marginBottom: 10 }}>Create a full account to create rounds, track history and keep your handicap saved.</p>
+          <button className="btn btn-primary" onClick={signOut} style={{ fontSize: 13, padding: '8px 16px' }}>
+            Sign in with Google or email →
+          </button>
+        </div>
+      )}
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {/* Create round — hidden for guests */}
+        {!isGuest && (
         <div className="card" style={{ background: 'var(--green-700)', border: 'none', color: 'white' }}>
           <h2 style={{ fontSize: 17, fontWeight: 600, marginBottom: 6 }}>Create a round</h2>
           <p style={{ fontSize: 13, opacity: 0.8, marginBottom: 16 }}>Set up a new round and invite your group with a 6-digit code.</p>
@@ -96,9 +111,10 @@ export default function HomePage() {
             Create round
           </button>
         </div>
+        )}
 
+        {/* Join round */}
         <div className="card">
-          <h2 style={{ fontSize: 17, fontWeight: 600, marginBottom: 6 }}>Join a round</h2>
           <p style={{ fontSize: 13, color: 'var(--gray-500)', marginBottom: 16 }}>Enter the 6-character code shared by the organiser.</p>
           <form onSubmit={handleJoin}>
             <input
