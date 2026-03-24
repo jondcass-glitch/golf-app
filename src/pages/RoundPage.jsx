@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
+import InvitePanel from '../components/round/InvitePanel'
 
 export default function RoundPage() {
   const { roundId } = useParams()
@@ -15,7 +16,6 @@ export default function RoundPage() {
 
   useEffect(() => {
     fetchRound()
-
     const sub = supabase
       .channel(`lobby-${roundId}-${Date.now()}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'round_players', filter: `round_id=eq.${roundId}` }, fetchPlayers)
@@ -29,7 +29,6 @@ export default function RoundPage() {
       if (document.visibilityState === 'visible') fetchPlayers()
     }
     document.addEventListener('visibilitychange', handleVisibilityChange)
-
     const poll = setInterval(fetchPlayers, 15000)
 
     return () => {
@@ -41,10 +40,7 @@ export default function RoundPage() {
 
   async function fetchRound() {
     const { data } = await supabase
-      .from('rounds')
-      .select('*, course:courses(name, location)')
-      .eq('id', roundId)
-      .single()
+      .from('rounds').select('*, course:courses(name, location)').eq('id', roundId).single()
     if (data) {
       setRound(data)
       setIsOrganiser(data.created_by === user.id)
@@ -55,11 +51,8 @@ export default function RoundPage() {
   }
 
   async function fetchPlayers() {
-    const { data, error } = await supabase
-      .from('round_players')
-      .select('*, profile:profiles(display_name)')
-      .eq('round_id', roundId)
-    console.log('fetchPlayers result:', data, error)
+    const { data } = await supabase
+      .from('round_players').select('*, profile:profiles(display_name)').eq('round_id', roundId)
     setPlayers(data ?? [])
   }
 
@@ -73,39 +66,37 @@ export default function RoundPage() {
 
   return (
     <div className="page" style={{ paddingTop: 24 }}>
-      <div className="card" style={{ background: 'var(--green-700)', border: 'none', color: 'white', marginBottom: 24 }}>
+      <button className="btn btn-ghost" onClick={() => navigate('/')} style={{ marginBottom: 20, paddingLeft: 0 }}>← Back</button>
+
+      {/* Round header card */}
+      <div className="card" style={{ background: 'var(--green-700)', border: 'none', color: 'white', marginBottom: 20 }}>
         <p style={{ fontSize: 12, opacity: 0.7, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Lobby</p>
         <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 2 }}>{round?.name}</h1>
-        <p style={{ fontSize: 14, opacity: 0.8 }}>{round?.course?.name}</p>
-        <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <p style={{ fontSize: 14, opacity: 0.8, marginBottom: 14 }}>{round?.course?.name}</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
           <span style={{ fontSize: 13, opacity: 0.7 }}>Join code</span>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 20, fontWeight: 600, letterSpacing: '0.15em', background: 'rgba(255,255,255,0.15)', padding: '4px 12px', borderRadius: 8 }}>
             {round?.join_code}
           </span>
         </div>
+        {round?.join_code && <InvitePanel joinCode={round.join_code} />}
       </div>
 
-      {/* Betting info — visible to all, read only */}
+      {/* Betting info */}
       {round?.betting_format && round.betting_format !== 'none' && (
-        <div className="card" style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <div>
-            <p style={{ fontSize: 13, color: 'var(--gray-500)', marginBottom: 2 }}>Betting</p>
-            <p style={{ fontSize: 14, fontWeight: 500 }}>
-              {round.betting_format === 'overall_only' ? 'Overall only' : 'Front 9, Back 9 & Overall'}
-            </p>
+            <p style={{ fontSize: 12, color: 'var(--gray-500)', marginBottom: 2 }}>Betting</p>
+            <p style={{ fontSize: 14, fontWeight: 500 }}>{round.betting_format === 'overall_only' ? 'Overall only' : 'Front 9, Back 9 & Overall'}</p>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <p style={{ fontSize: 13, color: 'var(--gray-500)', marginBottom: 2 }}>Stake</p>
-            <p style={{ fontSize: 18, fontWeight: 700, fontFamily: 'var(--font-mono)', color: 'var(--green-700)' }}>
-              £{((round.stake_pence ?? 0) / 100).toFixed(2)}
-            </p>
+            <p style={{ fontSize: 12, color: 'var(--gray-500)', marginBottom: 2 }}>Stake</p>
+            <p style={{ fontSize: 18, fontWeight: 700, fontFamily: 'var(--font-mono)', color: 'var(--green-600)' }}>£{((round.stake_pence ?? 0) / 100).toFixed(2)}</p>
           </div>
         </div>
       )}
 
-      <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
-        Players joined ({players.length})
-      </h2>
+      <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>Players joined ({players.length})</h2>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
         {players.map(p => (
@@ -117,32 +108,23 @@ export default function RoundPage() {
               <span style={{ fontSize: 15, fontWeight: 500 }}>{p.profile?.display_name}</span>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <p style={{ fontSize: 13, color: 'var(--gray-500)' }}>Playing hcp</p>
+              <p style={{ fontSize: 12, color: 'var(--gray-500)' }}>Playing hcp</p>
               <p style={{ fontSize: 16, fontWeight: 600, fontFamily: 'var(--font-mono)', color: 'var(--green-700)' }}>{p.playing_handicap}</p>
             </div>
           </div>
         ))}
         {players.length === 0 && (
-          <p style={{ fontSize: 14, color: 'var(--gray-500)', textAlign: 'center', padding: '20px 0' }}>
-            Waiting for players to join…
-          </p>
+          <p style={{ fontSize: 14, color: 'var(--gray-500)', textAlign: 'center', padding: '20px 0' }}>Waiting for players to join…</p>
         )}
       </div>
 
       {isOrganiser && (
-        <button
-          className="btn btn-primary"
-          onClick={startRound}
-          disabled={starting || players.length === 0}
-          style={{ width: '100%' }}
-        >
+        <button className="btn btn-primary" onClick={startRound} disabled={starting || players.length === 0} style={{ width: '100%' }}>
           {starting ? 'Starting…' : `Start round with ${players.length} player${players.length !== 1 ? 's' : ''}`}
         </button>
       )}
       {!isOrganiser && (
-        <p style={{ fontSize: 14, color: 'var(--gray-500)', textAlign: 'center' }}>
-          Waiting for the organiser to start the round…
-        </p>
+        <p style={{ fontSize: 14, color: 'var(--gray-500)', textAlign: 'center' }}>Waiting for the organiser to start the round…</p>
       )}
     </div>
   )

@@ -3,8 +3,13 @@ import { AuthProvider, useAuth } from './hooks/useAuth'
 import LoginPage from './pages/LoginPage'
 import HomePage from './pages/HomePage'
 import CreateRoundPage from './pages/CreateRoundPage'
+import BettingSetupPage from './pages/BettingSetupPage'
 import JoinRoundPage from './pages/JoinRoundPage'
 import RoundPage from './pages/RoundPage'
+import PlayPage from './pages/PlayPage'
+import ResultsPage from './pages/ResultsPage'
+import ProfilePage from './pages/ProfilePage'
+import JoinRedirectPage from './pages/JoinRedirectPage'
 import './styles/global.css'
 
 function RequireAuth({ children }) {
@@ -22,9 +27,14 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <LoginPage />} />
       <Route path="/" element={<RequireAuth><HomePage /></RequireAuth>} />
+      <Route path="/join/:code" element={<JoinRedirectPage />} />
       <Route path="/round/new" element={<RequireAuth><CreateRoundPage /></RequireAuth>} />
+      <Route path="/round/:roundId/betting" element={<RequireAuth><BettingSetupPage /></RequireAuth>} />
       <Route path="/round/:roundId/join" element={<RequireAuth><JoinRoundPage /></RequireAuth>} />
       <Route path="/round/:roundId" element={<RequireAuth><RoundPage /></RequireAuth>} />
+      <Route path="/round/:roundId/play" element={<RequireAuth><PlayPage /></RequireAuth>} />
+      <Route path="/round/:roundId/results" element={<RequireAuth><ResultsPage /></RequireAuth>} />
+      <Route path="/profile" element={<RequireAuth><ProfilePage /></RequireAuth>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

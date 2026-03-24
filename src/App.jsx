@@ -9,6 +9,7 @@ import RoundPage from './pages/RoundPage'
 import PlayPage from './pages/PlayPage'
 import ResultsPage from './pages/ResultsPage'
 import ProfilePage from './pages/ProfilePage'
+import JoinRedirectPage from './pages/JoinRedirectPage'
 import './styles/global.css'
 
 function RequireAuth({ children }) {
@@ -26,6 +27,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <LoginPage />} />
       <Route path="/" element={<RequireAuth><HomePage /></RequireAuth>} />
+      <Route path="/join/:code" element={<JoinRedirectPage />} />
       <Route path="/round/new" element={<RequireAuth><CreateRoundPage /></RequireAuth>} />
       <Route path="/round/:roundId/betting" element={<RequireAuth><BettingSetupPage /></RequireAuth>} />
       <Route path="/round/:roundId/join" element={<RequireAuth><JoinRoundPage /></RequireAuth>} />

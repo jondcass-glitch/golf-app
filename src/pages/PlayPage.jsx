@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 import { stablefordPoints, scoreLabel, strokesReceived } from '../lib/scoring'
+import InvitePanel from '../components/round/InvitePanel'
 
 const TABS = ['Leaderboard', 'Scorecard', 'Enter']
 
@@ -344,6 +345,15 @@ export default function PlayPage() {
         {/* ── ENTER SCORE TAB ── */}
         {tab === 'Enter' && myPlayer && (
           <div>
+            {/* Invite panel — collapsible */}
+            {round?.join_code && (
+              <details style={{ marginBottom: 20 }}>
+                <summary style={{ fontSize: 13, color: 'var(--gray-500)', cursor: 'pointer', padding: '8px 0', listStyle: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 11, background: 'var(--gray-100)', borderRadius: 10, padding: '2px 8px', color: 'var(--gray-600)', fontWeight: 500 }}>+ Invite players</span>
+                </summary>
+                <InvitePanel joinCode={round.join_code} />
+              </details>
+            )}
             <p style={{ fontSize: 13, color: 'var(--gray-500)', marginBottom: 8 }}>Select hole</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 20 }}>
               {holes.map(hole => {
@@ -402,4 +412,3 @@ export default function PlayPage() {
     </div>
   )
 }
-// build trigger
