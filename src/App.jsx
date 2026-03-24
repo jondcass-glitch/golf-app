@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './hooks/useAuth'
 import LoginPage from './pages/LoginPage'
 import HomePage from './pages/HomePage'
@@ -14,18 +14,23 @@ import './styles/global.css'
 
 function RequireAuth({ children }) {
   const { user, loading } = useAuth()
+  const location = useLocation()
   if (loading) return <div className="page" style={{ paddingTop: 80, textAlign: 'center', color: 'var(--gray-500)' }}>Loading…</div>
-  if (!user) return <Navigate to="/login" replace />
+  if (!user) return <Navigate to="/login" state={{ from: location }} replace />
   return children
 }
 
 function AppRoutes() {
   const { user, loading } = useAuth()
+  const location = useLocation()
   if (loading) return null
+
+  // After login, redirect to where the user was trying to go
+  const from = location.state?.from?.pathname || '/'
 
   return (
     <Routes>
-      <Route path="/login" element={user ? <Navigate to="/" replace /> : <LoginPage />} />
+      <Route path="/login" element={user ? <Navigate to={from} replace /> : <LoginPage />} />
       <Route path="/" element={<RequireAuth><HomePage /></RequireAuth>} />
       <Route path="/join/:code" element={<JoinRedirectPage />} />
       <Route path="/round/new" element={<RequireAuth><CreateRoundPage /></RequireAuth>} />

@@ -24,7 +24,9 @@ export default function JoinRedirectPage() {
         return
       }
 
-      // Redirect to join page — auth guard will handle login if needed
+      // Navigate to the join page — RequireAuth will redirect to /login
+      // and preserve this path in location.state.from so the user
+      // returns here after signing in
       navigate(`/round/${data.id}/join`, { replace: true })
     }
     resolve()
