@@ -88,10 +88,10 @@ export default function JoinRoundPage() {
       })
 
     if (error) { setError(error.message); setSaving(false); return }
-    navigate(`/round/${roundId}`)
+    navigate(round.status === 'active' ? `/round/${roundId}/play` : `/round/${roundId}`)
   }
 
-  if (loading) return <div className="page" style={{ paddingTop: 80, textAlign: 'center', color: 'var(--gray-500)' }}>Loading…</div>
+  if (loading) return <div className="page" style={{ paddingTop: 80, textAlign: 'center', color: 'var(--text-muted)' }}>Loading…</div>
   if (error) return <div className="page" style={{ paddingTop: 80, textAlign: 'center', color: 'var(--red-500)' }}>{error}</div>
 
   return (
@@ -101,8 +101,10 @@ export default function JoinRoundPage() {
       </button>
 
       {/* Round summary */}
-      <div className="card" style={{ background: 'var(--green-700)', border: 'none', color: 'white', marginBottom: 24 }}>
-        <p style={{ fontSize: 12, opacity: 0.7, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Joining</p>
+      <div className="card" style={{ background: 'var(--green-700)', border: 'none', color: 'white', marginBottom: round.status === 'active' ? 12 : 24 }}>
+        <p style={{ fontSize: 12, opacity: 0.7, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          {round.status === 'active' ? 'Round in progress' : 'Joining'}
+        </p>
         <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 2 }}>{round.name}</h1>
         <p style={{ fontSize: 14, opacity: 0.8 }}>{round.course?.name}</p>
         {round.handicap_allowance < 100 && (
@@ -112,8 +114,16 @@ export default function JoinRoundPage() {
         )}
       </div>
 
+      {/* Late joiner notice */}
+      {round.status === 'active' && (
+        <div style={{ background: 'var(--amber-100)', border: '1px solid var(--amber-400)', borderRadius: 'var(--radius-md)', padding: '10px 14px', marginBottom: 24 }}>
+          <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--amber-500)', marginBottom: 2 }}>Joining a round in progress</p>
+          <p style={{ fontSize: 12, color: 'var(--amber-500)' }}>Enter your handicap below then you can score all 18 holes including any already played.</p>
+        </div>
+      )}
+
       <h2 style={{ fontSize: 17, fontWeight: 600, marginBottom: 4 }}>Your handicap</h2>
-      <p style={{ fontSize: 14, color: 'var(--gray-500)', marginBottom: 20 }}>
+      <p style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 20 }}>
         Enter your exact WHS handicap index. Your playing handicap will be calculated automatically.
       </p>
 
@@ -137,12 +147,12 @@ export default function JoinRoundPage() {
           </div>
 
           {calculatedHandicap !== null && (
-            <div style={{ background: 'var(--green-50)', border: '1px solid var(--green-100)', borderRadius: 'var(--radius-md)', padding: '12px 14px' }}>
-              <p style={{ fontSize: 13, color: 'var(--green-600)', marginBottom: 2 }}>Calculated playing handicap</p>
-              <p style={{ fontSize: 24, fontWeight: 600, color: 'var(--green-700)', fontFamily: 'var(--font-mono)' }}>
+            <div style={{ background: 'rgba(201,168,76,0.08)', border: '1px solid var(--green-100)', borderRadius: 'var(--radius-md)', padding: '12px 14px' }}>
+              <p style={{ fontSize: 13, color: 'var(--accent)', marginBottom: 2 }}>Calculated playing handicap</p>
+              <p style={{ fontSize: 24, fontWeight: 600, color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>
                 {calculatedHandicap}
               </p>
-              <p style={{ fontSize: 12, color: 'var(--green-600)', marginTop: 2 }}>
+              <p style={{ fontSize: 12, color: 'var(--accent)', marginTop: 2 }}>
                 {exactHandicap} × {round.handicap_allowance}% = {calculatedHandicap}
               </p>
             </div>
@@ -156,7 +166,7 @@ export default function JoinRoundPage() {
               onChange={e => setUseOverride(e.target.checked)}
               style={{ accentColor: 'var(--green-600)', width: 16, height: 16 }}
             />
-            <span style={{ fontSize: 14, color: 'var(--gray-700)' }}>Override with a course-specific handicap</span>
+            <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>Override with a course-specific handicap</span>
           </label>
 
           {useOverride && (
@@ -172,7 +182,7 @@ export default function JoinRoundPage() {
                 onChange={e => setOverride(e.target.value)}
                 style={{ fontFamily: 'var(--font-mono)', fontSize: 18 }}
               />
-              <p style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 6 }}>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6 }}>
                 This overrides the calculated value and is what will be used for scoring.
               </p>
             </div>
@@ -183,8 +193,8 @@ export default function JoinRoundPage() {
         {playingHandicap !== null && (
           <div className="card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <p style={{ fontSize: 13, color: 'var(--gray-500)' }}>Playing handicap for this round</p>
-              <p style={{ fontSize: 28, fontWeight: 600, fontFamily: 'var(--font-mono)', color: 'var(--green-700)' }}>{playingHandicap}</p>
+              <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>Playing handicap for this round</p>
+              <p style={{ fontSize: 28, fontWeight: 600, fontFamily: 'var(--font-mono)', color: 'var(--accent)' }}>{playingHandicap}</p>
             </div>
             {useOverride && override !== '' && (
               <span style={{ fontSize: 12, background: 'var(--amber-100)', color: 'var(--amber-500)', padding: '4px 10px', borderRadius: 20, fontWeight: 500 }}>
