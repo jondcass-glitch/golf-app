@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saturday Golf — Explainer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #060f06;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: 'DM Sans', sans-serif;
+  overflow: hidden;
+}
+
+#stage {
+  width: 900px;
+  height: 506px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #0a140a;
+  box-shadow: 0 40px 120px rgba(0,0,0,0.8), 0 0 0 1px rgba(74,168,74,0.1);
+}
+
+/* ─── Shared BG ─── */
+.grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(74,168,74,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74,168,74,0.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none;
+}
+.glow {
+  position: absolute; border-radius: 50%;
+  filter: blur(80px); pointer-events: none;
+}
+.glow-a { width:360px;height:360px;background:rgba(74,168,74,0.07);top:-120px;left:-80px; animation: gb 9s ease-in-out infinite; }
+.glow-b { width:240px;height:240px;background:rgba(180,230,80,0.04);bottom:-80px;right:-60px; animation: gb 7s 3s ease-in-out infinite; }
+@keyframes gb { 0%,100%{transform:translate(0,0)} 50%{transform:translate(18px,-18px)} }
+
+/* ─── Scenes ─── */
+.scene {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.65s ease;
+}
+.scene.active { opacity: 1; pointer-events: auto; }
+
+/* ─── Tags / labels ─── */
+.tag {
+  font-size: 10px; font-weight: 500; letter-spacing: 0.18em;
+  text-transform: uppercase; color: #4aa84a;
+  background: rgba(74,168,74,0.1);
+  border: 1px solid rgba(74,168,74,0.22);
+  padding: 5px 14px; border-radius: 20px;
+  margin-bottom: 18px; display: inline-block;
+}
+
+/* ══════════════════════════════
+   SCENE 1 — Brand hero
+══════════════════════════════ */
+#s1 .wordmark {
+  font-family: 'DM Serif Display', serif;
+  font-size: 72px; line-height: 1;
+  color: #e8f5e8; letter-spacing: -0.02em;
+  opacity: 0; transform: translateY(24px);
+  animation: riseIn 1s cubic-bezier(0.16,1,0.3,1) 0.2s forwards;
+}
+#s1 .wordmark span { color: #4aa84a; font-style: italic; }
+#s1 .sub {
+  font-size: 17px; font-weight: 300;
+  color: rgba(232,245,232,0.5);
+  margin-top: 14px; letter-spacing: 0.04em;
+  opacity: 0; transform: translateY(12px);
+  animation: riseIn 0.9s cubic-bezier(0.16,1,0.3,1) 0.7s forwards;
+}
+#s1 .pill-row {
+  display: flex; gap: 10px; margin-top: 28px;
+  opacity: 0;
+  animation: riseIn 0.9s cubic-bezier(0.16,1,0.3,1) 1.1s forwards;
+}
+#s1 .pill {
+  font-size: 12px; font-weight: 500; color: rgba(232,245,232,0.55);
+  background: rgba(74,168,74,0.08); border: 1px solid rgba(74,168,74,0.18);
+  padding: 6px 16px; border-radius: 20px;
+}
+#s1 .pill.active-pill { color: #4aa84a; border-color: rgba(74,168,74,0.4); background: rgba(74,168,74,0.12); }
+
+@keyframes riseIn { to { opacity:1; transform:translateY(0); } }
+
+/* ══════════════════════════════
+   SCENE 2 — For who?
+══════════════════════════════ */
+#s2 .for-headline {
+  font-family: 'DM Serif Display', serif;
+  font-size: 42px; color: #e8f5e8; text-align: center; line-height: 1.15;
+  margin-bottom: 32px;
+}
+#s2 .for-headline em { font-style: italic; color: #4aa84a; }
+.audience-cards {
+  display: flex; gap: 16px;
+}
+.aud-card {
+  width: 200px; padding: 22px 18px;
+  background: #111c11; border: 1px solid rgba(74,168,74,0.12);
+  border-radius: 14px; text-align: center;
+  opacity: 0; transform: translateY(16px);
+  transition: all 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+.aud-card.show { opacity:1; transform:translateY(0); }
+.aud-icon {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(74,168,74,0.1); border: 1px solid rgba(74,168,74,0.2);
+  margin: 0 auto 14px; display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.aud-title { font-size: 14px; font-weight: 500; color: #e8f5e8; margin-bottom: 6px; }
+.aud-desc { font-size: 12px; color: rgba(232,245,232,0.4); line-height: 1.5; }
+
+/* ══════════════════════════════
+   SCENE 3 — Create a round
+══════════════════════════════ */
+#s3 { flex-direction: row; gap: 50px; padding: 20px 50px; align-items: center; }
+.phone-frame {
+  width: 210px; flex-shrink: 0;
+  background: #141f14;
+  border: 1.5px solid rgba(74,168,74,0.2);
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  position: relative;
+}
+.phone-notch {
+  height: 28px; background: #0d1a0d;
+  display: flex; align-items: center; justify-content: center;
+}
+.phone-notch-pill {
+  width: 60px; height: 8px; background: #0a140a; border-radius: 4px;
+}
+.phone-screen { padding: 12px 14px 16px; background: #0d1a0d; }
+.ph-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.ph-logo {
+  font-family: 'DM Serif Display', serif; font-style: italic;
+  font-size: 18px; color: #4aa84a;
+}
+.ph-avatar {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: linear-gradient(135deg,#1a4a1a,#4aa84a);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 600; color: #e8f5e8;
+}
+.ph-greeting { font-size: 12px; color: rgba(232,245,232,0.4); margin-bottom: 4px; }
+.ph-name { font-size: 16px; font-weight: 500; color: #e8f5e8; margin-bottom: 14px; }
+
+.ph-create-btn {
+  width: 100%; padding: 12px;
+  background: #4aa84a; border-radius: 10px;
+  font-size: 13px; font-weight: 600; color: #0d1a0d;
+  text-align: center; margin-bottom: 10px;
+  position: relative; overflow: hidden;
+  cursor: pointer;
+}
+.ph-create-btn::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,0);
+  transition: background 0.3s;
+}
+.ph-create-btn.flash::after { background: rgba(255,255,255,0.25); }
+
+.ph-join-btn {
+  width: 100%; padding: 10px;
+  background: transparent;
+  border: 1px solid rgba(74,168,74,0.25);
+  border-radius: 10px;
+  font-size: 12px; font-weight: 500; color: rgba(232,245,232,0.5);
+  text-align: center; margin-bottom: 14px;
+}
+
+.ph-recent-label {
+  font-size: 9px; font-weight: 500; letter-spacing: 0.12em;
+  text-transform: uppercase; color: rgba(232,245,232,0.25);
+  margin-bottom: 8px;
+}
+.ph-round-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 10px; background: #111c11; border-radius: 8px;
+  margin-bottom: 6px; border: 1px solid rgba(74,168,74,0.08);
+}
+.ph-round-name { font-size: 11px; font-weight: 500; color: rgba(232,245,232,0.7); }
+.ph-round-date { font-size: 10px; color: rgba(232,245,232,0.3); }
+.ph-round-pts {
+  font-size: 11px; font-weight: 500; color: #4aa84a;
+  background: rgba(74,168,74,0.1); border-radius: 4px; padding: 1px 6px;
+}
+
+/* Step panel */
+.step-panel { flex: 1; }
+.sp-headline {
+  font-family: 'DM Serif Display', serif;
+  font-size: 32px; color: #e8f5e8; line-height: 1.2; margin-bottom: 6px;
+}
+.sp-headline em { font-style: italic; color: #4aa84a; }
+.sp-sub {
+  font-size: 14px; color: rgba(232,245,232,0.4);
+  font-weight: 300; margin-bottom: 26px;
+}
+.sp-step {
+  display: flex; align-items: flex-start; gap: 14px;
+  margin-bottom: 16px; opacity: 0; transform: translateX(-14px);
+  transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
+}
+.sp-step.show { opacity: 1; transform: translateX(0); }
+.sp-num {
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  background: rgba(74,168,74,0.1); border: 1px solid rgba(74,168,74,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 500; color: #4aa84a;
+  transition: all 0.4s;
+}
+.sp-step.done .sp-num { background: #4aa84a; color: #0d1a0d; border-color: #4aa84a; }
+.sp-info {}
+.sp-title { font-size: 13px; font-weight: 500; color: #e8f5e8; }
+.sp-desc { font-size: 12px; color: rgba(232,245,232,0.35); margin-top: 2px; line-height: 1.5; }
+
+/* ══════════════════════════════
+   SCENE 4 — Join code + live
+══════════════════════════════ */
+#s4 { flex-direction: row; gap: 40px; padding: 20px 50px; align-items: center; }
+.code-panel {
+  width: 300px; flex-shrink: 0;
+  background: #111c11; border: 1px solid rgba(74,168,74,0.15);
+  border-radius: 18px; overflow: hidden;
+}
+.cp-header {
+  background: #0d1a0d; padding: 14px 18px;
+  border-bottom: 1px solid rgba(74,168,74,0.1);
+}
+.cp-round-name { font-size: 14px; font-weight: 500; color: #e8f5e8; }
+.cp-course { font-size: 11px; color: rgba(232,245,232,0.4); margin-top: 2px; }
+.cp-body { padding: 18px; }
+.cp-code-label {
+  font-size: 10px; font-weight: 500; letter-spacing: 0.14em;
+  text-transform: uppercase; color: rgba(232,245,232,0.3);
+  margin-bottom: 10px;
+}
+.cp-code {
+  font-family: 'DM Mono', monospace;
+  font-size: 36px; font-weight: 500; letter-spacing: 0.25em;
+  color: #4aa84a; text-align: center;
+  background: rgba(74,168,74,0.06); border: 1px solid rgba(74,168,74,0.2);
+  border-radius: 10px; padding: 12px; margin-bottom: 14px;
+}
+.cp-players-label {
+  font-size: 10px; font-weight: 500; letter-spacing: 0.12em;
+  text-transform: uppercase; color: rgba(232,245,232,0.25);
+  margin-bottom: 8px;
+}
+.cp-player {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 0; border-bottom: 1px solid rgba(74,168,74,0.06);
+  opacity: 0; transform: translateX(-8px);
+  transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.cp-player.show { opacity:1; transform:translateX(0); }
+.cp-av {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 600; color: #e8f5e8; flex-shrink: 0;
+}
+.cp-pname { font-size: 12px; color: rgba(232,245,232,0.7); flex: 1; }
+.cp-hcp { font-size: 11px; color: rgba(232,245,232,0.3); }
+.cp-live {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: #4aa84a; margin-top: 14px; justify-content: center;
+}
+.live-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: #4aa84a;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
+
+/* live leaderboard panel */
+.live-panel { flex: 1; }
+.lp-title {
+  font-family: 'DM Serif Display', serif; font-size: 30px;
+  color: #e8f5e8; line-height: 1.2; margin-bottom: 6px;
+}
+.lp-title em { font-style: italic; color: #4aa84a; }
+.lp-sub { font-size: 13px; color: rgba(232,245,232,0.4); font-weight: 300; margin-bottom: 20px; }
+.lp-board {
+  background: #111c11; border: 1px solid rgba(74,168,74,0.12);
+  border-radius: 12px; overflow: hidden;
+}
+.lp-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; border-bottom: 1px solid rgba(74,168,74,0.06);
+  opacity: 0; transform: translateX(10px);
+  transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
+}
+.lp-row.show { opacity:1; transform:translateX(0); }
+.lp-row:last-child { border-bottom: none; }
+.lp-pos { width: 20px; font-size: 12px; color: rgba(232,245,232,0.3); text-align:center; }
+.lp-pos.gold { color: #c9a84c; font-weight: 600; }
+.lp-av {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #e8f5e8; flex-shrink: 0;
+}
+.lp-name { font-size: 13px; font-weight: 500; color: #e8f5e8; flex: 1; }
+.lp-thru { font-size: 11px; color: rgba(232,245,232,0.3); }
+.lp-pts {
+  font-size: 14px; font-weight: 600; color: #4aa84a;
+  background: rgba(74,168,74,0.1); border-radius: 6px;
+  padding: 3px 10px; min-width: 44px; text-align: center;
+}
+.lp-pts.leader { background: rgba(74,168,74,0.2); border: 1px solid rgba(74,168,74,0.3); }
+
+/* ══════════════════════════════
+   SCENE 5 — Game types
+══════════════════════════════ */
+#s5 { padding: 30px 50px; }
+.gt-headline {
+  font-family: 'DM Serif Display', serif; font-size: 36px;
+  color: #e8f5e8; text-align: center; margin-bottom: 6px;
+}
+.gt-headline em { font-style: italic; color: #4aa84a; }
+.gt-sub { font-size: 14px; color: rgba(232,245,232,0.4); text-align:center; font-weight:300; margin-bottom: 28px; }
+.gt-cards { display: flex; gap: 16px; }
+.gt-card {
+  flex: 1; padding: 22px 18px;
+  background: #111c11; border: 1px solid rgba(74,168,74,0.1);
+  border-radius: 14px;
+  opacity: 0; transform: translateY(16px);
+  transition: all 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+.gt-card.show { opacity:1; transform:translateY(0); }
+.gt-card.featured { border-color: rgba(74,168,74,0.35); background: rgba(74,168,74,0.05); }
+.gt-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: rgba(74,168,74,0.1); border: 1px solid rgba(74,168,74,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; margin-bottom: 12px;
+}
+.gt-name { font-size: 14px; font-weight: 500; color: #e8f5e8; margin-bottom: 6px; }
+.gt-desc { font-size: 12px; color: rgba(232,245,232,0.4); line-height: 1.5; }
+.gt-tag {
+  display: inline-block; margin-top: 10px;
+  font-size: 10px; font-weight: 500; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #4aa84a;
+  background: rgba(74,168,74,0.1); border-radius: 4px; padding: 2px 8px;
+}
+
+/* ══════════════════════════════
+   SCENE 6 — CTA
+══════════════════════════════ */
+#s6 .cta-wrap {
+  text-align: center;
+  opacity: 0; animation: riseIn 0.9s 0.3s forwards;
+}
+#s6 .big-logo {
+  font-family: 'DM Serif Display', serif; font-size: 64px;
+  color: #e8f5e8; line-height: 1; margin-bottom: 4px;
+}
+#s6 .big-logo span { color: #4aa84a; font-style: italic; }
+#s6 .cta-sub {
+  font-size: 17px; font-weight: 300;
+  color: rgba(232,245,232,0.5); margin-bottom: 28px;
+}
+#s6 .cta-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: #4aa84a; color: #0a140a;
+  font-size: 15px; font-weight: 600;
+  padding: 14px 34px; border-radius: 40px; cursor: pointer;
+  letter-spacing: 0.02em; margin-bottom: 24px;
+  box-shadow: 0 0 40px rgba(74,168,74,0.3);
+  animation: glowPulse 2.5s 1.2s ease-in-out infinite;
+}
+@keyframes glowPulse {
+  0%,100% { box-shadow: 0 0 40px rgba(74,168,74,0.3); }
+  50% { box-shadow: 0 0 70px rgba(74,168,74,0.5); }
+}
+#s6 .proof {
+  font-size: 12px; color: rgba(232,245,232,0.25);
+  display: flex; align-items: center; gap: 10px; justify-content: center;
+}
+#s6 .dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(74,168,74,0.35); }
+#s6 .platform-row {
+  display: flex; align-items: center; gap: 12px; justify-content: center;
+  margin-top: 20px;
+}
+#s6 .pf-badge {
+  font-size: 11px; font-weight: 400; color: rgba(232,245,232,0.35);
+  background: rgba(74,168,74,0.06); border: 1px solid rgba(74,168,74,0.12);
+  padding: 5px 14px; border-radius: 20px;
+}
+
+/* ─── Cursor ─── */
+#cursor {
+  position: absolute; width: 22px; height: 22px;
+  border-radius: 50%; background: rgba(74,168,74,0.25);
+  border: 2px solid #4aa84a; pointer-events: none; z-index: 200;
+  opacity: 0; transition: all 0.85s cubic-bezier(0.4,0,0.2,1);
+}
+#cursor.on { opacity: 1; }
+#ring {
+  position: absolute; width: 22px; height: 22px;
+  border-radius: 50%; border: 2px solid #4aa84a;
+  pointer-events: none; z-index: 199; opacity: 0;
+}
+#ring.pop { animation: ringPop 0.55s ease-out forwards; }
+@keyframes ringPop { 0%{opacity:.8;transform:scale(1)} 100%{opacity:0;transform:scale(3.2)} }
+
+/* ─── Badge overlay ─── */
+#badge {
+  position: absolute; bottom: 52px; left: 50%; transform: translateX(-50%);
+  background: rgba(10,20,10,0.92); border: 1px solid rgba(74,168,74,0.28);
+  backdrop-filter: blur(10px); padding: 10px 24px; border-radius: 8px;
+  font-size: 14px; color: rgba(232,245,232,0.8); white-space: nowrap;
+  opacity: 0; transition: opacity 0.5s; z-index: 100; pointer-events: none;
+}
+#badge.on { opacity: 1; }
+#badge strong { color: #4aa84a; }
+
+/* ─── Progress ─── */
+#prog {
+  position: absolute; bottom: 0; left: 0; height: 3px;
+  background: linear-gradient(90deg, #1a5a1a, #4aa84a, #8ae88a);
+  transition: width 0.25s linear; z-index: 300;
+}
+
+/* ─── Controls ─── */
+#controls {
+  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px; z-index: 400;
+}
+.cbtn {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: rgba(10,20,10,0.8); border: 1px solid rgba(74,168,74,0.22);
+  color: rgba(232,245,232,0.65); font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s; backdrop-filter: blur(8px);
+}
+.cbtn:hover { background: rgba(74,168,74,0.15); color: #e8f5e8; }
+.dots { display: flex; gap: 6px; }
+.dot-c {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(74,168,74,0.2); cursor: pointer; transition: all 0.3s;
+}
+.dot-c.on { background: #4aa84a; transform: scale(1.35); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="grid"></div>
+  <div class="glow glow-a"></div>
+  <div class="glow glow-b"></div>
+
+  <!-- S1: Hero brand -->
+  <div class="scene" id="s1">
+    <div class="tag">Introducing</div>
+    <div class="wordmark">Saturday<span>Golf</span></div>
+    <div class="sub">Real-time golf betting for every group, every fairway.</div>
+    <div class="pill-row">
+      <div class="pill active-pill">Stableford</div>
+      <div class="pill active-pill">Skins</div>
+      <div class="pill active-pill">Ryder Cup</div>
+      <div class="pill">Live Leaderboard</div>
+    </div>
+  </div>
+
+  <!-- S2: Audience -->
+  <div class="scene" id="s2">
+    <div class="tag">Built for</div>
+    <div class="for-headline">Made for <em>real golfers</em><br>on real Saturdays.</div>
+    <div class="audience-cards">
+      <div class="aud-card" id="ac1">
+        <div class="aud-icon">⛳</div>
+        <div class="aud-title">Weekend groups</div>
+        <div class="aud-desc">4-ball friendlies with side bets — settled automatically</div>
+      </div>
+      <div class="aud-card" id="ac2">
+        <div class="aud-icon">🏆</div>
+        <div class="aud-title">Society days</div>
+        <div class="aud-desc">Run full competitions for 20+ players with a single link</div>
+      </div>
+      <div class="aud-card" id="ac3">
+        <div class="aud-icon">🏌️</div>
+        <div class="aud-title">Golf clubs</div>
+        <div class="aud-desc">White-label ready — your club, your day, on any device</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3: Create a round -->
+  <div class="scene" id="s3">
+    <div class="phone-frame">
+      <div class="phone-notch"><div class="phone-notch-pill"></div></div>
+      <div class="phone-screen">
+        <div class="ph-header">
+          <div class="ph-logo">SG</div>
+          <div class="ph-avatar">JC</div>
+        </div>
+        <div class="ph-greeting">Good morning,</div>
+        <div class="ph-name">Jon 👋</div>
+        <div class="ph-create-btn" id="createBtn">+ Create a round</div>
+        <div class="ph-join-btn">Join with code</div>
+        <div class="ph-recent-label">Recent rounds</div>
+        <div class="ph-round-item">
+          <div><div class="ph-round-name">Sunday Stableford</div><div class="ph-round-date">16 Mar</div></div>
+          <div class="ph-round-pts">34 pts</div>
+        </div>
+        <div class="ph-round-item">
+          <div><div class="ph-round-name">Club Skins Day</div><div class="ph-round-date">9 Mar</div></div>
+          <div class="ph-round-pts">+£24</div>
+        </div>
+      </div>
+    </div>
+    <div class="step-panel">
+      <div class="tag">Creating a round</div>
+      <div class="sp-headline">Up and running in<br><em>under a minute.</em></div>
+      <div class="sp-sub">No printing, no spreadsheets.</div>
+      <div class="sp-step" id="sp1">
+        <div class="sp-num">1</div>
+        <div class="sp-info">
+          <div class="sp-title">Tap "Create a round"</div>
+          <div class="sp-desc">Choose your course, game type and handicap allowance</div>
+        </div>
+      </div>
+      <div class="sp-step" id="sp2">
+        <div class="sp-num">2</div>
+        <div class="sp-info">
+          <div class="sp-title">Share your 6-digit code</div>
+          <div class="sp-desc">Players join from any device — iPhone, Android or browser</div>
+        </div>
+      </div>
+      <div class="sp-step" id="sp3">
+        <div class="sp-num">3</div>
+        <div class="sp-info">
+          <div class="sp-title">Tee off — scores go live</div>
+          <div class="sp-desc">Real-time leaderboard updates for everyone instantly</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S4: Join code + live board -->
+  <div class="scene" id="s4">
+    <div class="code-panel">
+      <div class="cp-header">
+        <div class="cp-round-name">Saturday Stableford</div>
+        <div class="cp-course">Sunningdale Old Course</div>
+      </div>
+      <div class="cp-body">
+        <div class="cp-code-label">Join code</div>
+        <div class="cp-code">GX7K2P</div>
+        <div class="cp-players-label">Players joined (4/8)</div>
+        <div class="cp-player" id="pp1">
+          <div class="cp-av" style="background:linear-gradient(135deg,#1a4a1a,#4aa84a)">JC</div>
+          <div class="cp-pname">Jon Clarke</div><div class="cp-hcp">hcp 14</div>
+        </div>
+        <div class="cp-player" id="pp2">
+          <div class="cp-av" style="background:linear-gradient(135deg,#2a3a6a,#4a6aaa)">MR</div>
+          <div class="cp-pname">Mike R.</div><div class="cp-hcp">hcp 8</div>
+        </div>
+        <div class="cp-player" id="pp3">
+          <div class="cp-av" style="background:linear-gradient(135deg,#4a2a2a,#aa4a4a)">DP</div>
+          <div class="cp-pname">Dave P.</div><div class="cp-hcp">hcp 18</div>
+        </div>
+        <div class="cp-player" id="pp4">
+          <div class="cp-av" style="background:linear-gradient(135deg,#3a2a1a,#aa8a4a)">ST</div>
+          <div class="cp-pname">Steve T.</div><div class="cp-hcp">hcp 22</div>
+        </div>
+        <div class="cp-live"><div class="live-dot"></div> Live — all devices synced</div>
+      </div>
+    </div>
+    <div class="live-panel">
+      <div class="tag">After 12 holes</div>
+      <div class="lp-title">Everyone sees the<br><em>same leaderboard.</em></div>
+      <div class="lp-sub">Real-time. No app needed. No refreshing.</div>
+      <div class="lp-board">
+        <div class="lp-row" id="lr1">
+          <div class="lp-pos gold">1</div>
+          <div class="lp-av" style="background:linear-gradient(135deg,#2a3a6a,#4a6aaa)">MR</div>
+          <div class="lp-name">Mike R.</div>
+          <div class="lp-thru">thru 12</div>
+          <div class="lp-pts leader">28</div>
+        </div>
+        <div class="lp-row" id="lr2">
+          <div class="lp-pos">2</div>
+          <div class="lp-av" style="background:linear-gradient(135deg,#1a4a1a,#4aa84a)">JC</div>
+          <div class="lp-name">Jon C.</div>
+          <div class="lp-thru">thru 12</div>
+          <div class="lp-pts">25</div>
+        </div>
+        <div class="lp-row" id="lr3">
+          <div class="lp-pos">3</div>
+          <div class="lp-av" style="background:linear-gradient(135deg,#3a2a1a,#aa8a4a)">ST</div>
+          <div class="lp-name">Steve T.</div>
+          <div class="lp-thru">thru 11</div>
+          <div class="lp-pts">22</div>
+        </div>
+        <div class="lp-row" id="lr4">
+          <div class="lp-pos">4</div>
+          <div class="lp-av" style="background:linear-gradient(135deg,#4a2a2a,#aa4a4a)">DP</div>
+          <div class="lp-name">Dave P.</div>
+          <div class="lp-thru">thru 10</div>
+          <div class="lp-pts">18</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S5: Game types -->
+  <div class="scene" id="s5">
+    <div class="tag">Game types</div>
+    <div class="gt-headline">Your format. <em>Your rules.</em></div>
+    <div class="gt-sub">Three competition formats built in from day one.</div>
+    <div class="gt-cards">
+      <div class="gt-card featured" id="gc1">
+        <div class="gt-icon">🏅</div>
+        <div class="gt-name">Stableford</div>
+        <div class="gt-desc">Handicap-adjusted points per hole. Perfect for mixed-ability groups and society days.</div>
+        <div class="gt-tag">Most popular</div>
+      </div>
+      <div class="gt-card" id="gc2">
+        <div class="gt-icon">💰</div>
+        <div class="gt-name">Skins</div>
+        <div class="gt-desc">Win the hole, win the pot. Carry-over ties for bigger prizes. Auto-calculated.</div>
+        <div class="gt-tag">Best for side bets</div>
+      </div>
+      <div class="gt-card" id="gc3">
+        <div class="gt-icon">🏆</div>
+        <div class="gt-name">Ryder Cup</div>
+        <div class="gt-desc">Team matchplay. Two sides, hole-by-hole drama. Real-time match status for all.</div>
+        <div class="gt-tag">Team format</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S6: CTA -->
+  <div class="scene" id="s6">
+    <div class="cta-wrap">
+      <div class="big-logo">Saturday<span>Golf</span></div>
+      <div class="cta-sub">Set up your first round in under 60 seconds.</div>
+      <div class="cta-btn">
+        Start for free
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="proof">
+        <span>Works on any device</span>
+        <div class="dot"></div>
+        <span>No app download needed</span>
+        <div class="dot"></div>
+        <span>Free to get started</span>
+      </div>
+      <div class="platform-row">
+        <div class="pf-badge">iOS Safari</div>
+        <div class="pf-badge">Android Chrome</div>
+        <div class="pf-badge">Desktop browser</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlays -->
+  <div id="cursor"></div>
+  <div id="ring"></div>
+  <div id="badge"></div>
+  <div id="prog" style="width:0%"></div>
+
+  <div id="controls">
+    <div class="cbtn" id="prevBtn">&#8592;</div>
+    <div class="dots" id="dots"></div>
+    <div class="cbtn" id="playBtn">&#9646;&#9646;</div>
+    <div class="cbtn" id="nextBtn">&#8594;</div>
+  </div>
+</div>
+
+<script>
+const SCENES = ['s1','s2','s3','s4','s5','s6'];
+const DURS   = [5000, 6000, 9000, 9000, 8000, 8000];
+const TOTAL  = DURS.reduce((a,b)=>a+b,0);
+const CUMUL  = DURS.map((_,i)=>DURS.slice(0,i).reduce((a,b)=>a+b,0));
+
+let cur=0, paused=false, startT=null, elap=0, tmr=null, ptmr=null;
+
+// Build dots
+const dotsEl = document.getElementById('dots');
+SCENES.forEach((_,i)=>{
+  const d = document.createElement('div');
+  d.className='dot-c'+(i===0?' on':'');
+  d.onclick=()=>goTo(i);
+  dotsEl.appendChild(d);
+});
+
+function setCursor(x,y,delay){
+  return new Promise(res=>{
+    setTimeout(()=>{
+      const c=document.getElementById('cursor');
+      c.style.left=x+'px'; c.style.top=y+'px'; c.classList.add('on'); res();
+    },delay);
+  });
+}
+function doClick(x,y,delay){
+  return new Promise(res=>{
+    setTimeout(()=>{
+      const c=document.getElementById('cursor');
+      const r=document.getElementById('ring');
+      c.style.left=x+'px'; c.style.top=y+'px';
+      r.style.left=x+'px'; r.style.top=y+'px';
+      r.classList.remove('pop'); void r.offsetWidth; r.classList.add('pop');
+      res();
+    },delay);
+  });
+}
+function hideCursor(){ document.getElementById('cursor').classList.remove('on'); }
+function badge(html, delay, dur=2400){
+  setTimeout(()=>{
+    const b=document.getElementById('badge');
+    b.innerHTML=html; b.classList.add('on');
+    setTimeout(()=>b.classList.remove('on'), dur);
+  }, delay);
+}
+
+function runAnim(idx){
+  hideCursor();
+  document.getElementById('badge').classList.remove('on');
+
+  if(idx===0){ /* CSS animations handle it */ }
+
+  if(idx===1){
+    ['ac1','ac2','ac3'].forEach((id,i)=>{
+      const el=document.getElementById(id);
+      el.classList.remove('show');
+      setTimeout(()=>el.classList.add('show'), 500+i*500);
+    });
+    badge('<strong>Saturday Golf</strong> — for every kind of golfer', 1200);
+  }
+
+  if(idx===2){
+    ['sp1','sp2','sp3'].forEach(id=>document.getElementById(id).classList.remove('show','done'));
+    // cursor click on create btn
+    setCursor(120,195,600);
+    doClick(120,195,900);
+    setTimeout(()=>{ document.getElementById('createBtn').classList.add('flash'); setTimeout(()=>document.getElementById('createBtn').classList.remove('flash'),300); },900);
+    setTimeout(()=>{ document.getElementById('sp1').classList.add('show'); },1000);
+    badge('<strong>Pick your game</strong> — Stableford, Skins or Ryder Cup', 1400);
+    setTimeout(()=>{ document.getElementById('sp1').classList.add('done'); document.getElementById('sp2').classList.add('show'); },2600);
+    badge('<strong>Share the code</strong> — players join in seconds', 3200);
+    setTimeout(()=>{ document.getElementById('sp2').classList.add('done'); document.getElementById('sp3').classList.add('show'); },4500);
+    badge('<strong>Tee off</strong> — the leaderboard goes live instantly', 5200);
+    setTimeout(()=>{ document.getElementById('sp3').classList.add('done'); },6500);
+  }
+
+  if(idx===3){
+    ['pp1','pp2','pp3','pp4'].forEach(id=>document.getElementById(id).classList.remove('show'));
+    ['lr1','lr2','lr3','lr4'].forEach(id=>document.getElementById(id).classList.remove('show'));
+    ['pp1','pp2','pp3','pp4'].forEach((id,i)=>setTimeout(()=>document.getElementById(id).classList.add('show'),400+i*450));
+    badge('<strong>One code.</strong> Any device. Everyone\'s in.', 600);
+    ['lr1','lr2','lr3','lr4'].forEach((id,i)=>setTimeout(()=>document.getElementById(id).classList.add('show'),2400+i*350));
+    badge('<strong>Live leaderboard</strong> — updates the moment a score is entered', 3000);
+  }
+
+  if(idx===4){
+    ['gc1','gc2','gc3'].forEach(id=>document.getElementById(id).classList.remove('show'));
+    ['gc1','gc2','gc3'].forEach((id,i)=>setTimeout(()=>document.getElementById(id).classList.add('show'),500+i*600));
+    badge('<strong>More formats coming</strong> — Nassau, Matchplay & more', 2800);
+  }
+
+  if(idx===5){ /* CSS animation */ }
+}
+
+function goTo(idx){
+  document.getElementById(SCENES[cur]).classList.remove('active');
+  document.querySelectorAll('.dot-c')[cur].classList.remove('on');
+  cur=idx;
+  document.getElementById(SCENES[cur]).classList.add('active');
+  document.querySelectorAll('.dot-c')[cur].classList.add('on');
+  runAnim(idx);
+  clearTimeout(tmr); clearInterval(ptmr);
+  elap=0; startT=Date.now();
+  if(!paused) schedNext();
+}
+
+function schedNext(){
+  clearTimeout(tmr); clearInterval(ptmr);
+  startT=Date.now();
+  const dur=DURS[cur];
+  ptmr=setInterval(()=>{
+    if(!paused){
+      const e=elap+(Date.now()-startT);
+      const g=(CUMUL[cur]+e)/TOTAL;
+      document.getElementById('prog').style.width=(g*100)+'%';
+      if(e>=dur) clearInterval(ptmr);
+    }
+  },40);
+  tmr=setTimeout(()=>{
+    if(!paused && cur<SCENES.length-1) goTo(cur+1);
+  }, dur-elap);
+}
+
+document.getElementById('playBtn').onclick=()=>{
+  paused=!paused;
+  document.getElementById('playBtn').innerHTML=paused?'&#9654;':'&#9646;&#9646;';
+  if(!paused){ elap=0; startT=Date.now(); schedNext(); }
+  else{ clearTimeout(tmr); clearInterval(ptmr); elap+=Date.now()-startT; }
+};
+document.getElementById('nextBtn').onclick=()=>{ if(cur<SCENES.length-1) goTo(cur+1); };
+document.getElementById('prevBtn').onclick=()=>{ if(cur>0) goTo(cur-1); };
+
+goTo(0);
+</script>
+</body>
+</html>

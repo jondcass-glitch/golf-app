@@ -30,23 +30,25 @@ export default function PlayPage() {
   useEffect(() => { fetchAll() }, [roundId])
 
   useEffect(() => {
-    if (!players.length) return
     const sub = supabase
-      .channel(`play-scores-${roundId}-${Date.now()}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'scores' }, () => fetchScores(players))
+      .channel(`play-${roundId}-${Date.now()}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'scores' }, fetchAll)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'round_players', filter: `round_id=eq.${roundId}` }, fetchAll)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'rounds', filter: `id=eq.${roundId}` }, fetchAll)
       .subscribe()
+
     function handleVisibilityChange() {
-      if (document.visibilityState === 'visible') fetchScores(players)
+      if (document.visibilityState === 'visible') fetchAll()
     }
     document.addEventListener('visibilitychange', handleVisibilityChange)
-    const poll = setInterval(() => fetchScores(players), 15000)
+    const poll = setInterval(fetchAll, 15000)
+
     return () => {
       supabase.removeChannel(sub)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       clearInterval(poll)
     }
-  }, [players])
+  }, [roundId])
 
   useEffect(() => {
     const hole = holes.find(h => h.hole_number === selectedHole)
