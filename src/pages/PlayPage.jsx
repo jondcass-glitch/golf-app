@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase'
 import { stablefordPoints, scoreLabel, strokesReceived } from '../lib/scoring'
 import InvitePanel from '../components/round/InvitePanel'
 
-const TABS = ['Leaderboard', 'Scorecard', 'Enter']
+const TABS = ['Enter', 'Leaderboard', 'Scorecard', 'Invite']
 
 export default function PlayPage() {
   const { roundId } = useParams()
@@ -342,18 +342,34 @@ export default function PlayPage() {
           </div>
         )}
 
+        {/* ── INVITE TAB ── */}
+        {tab === 'Invite' && (
+          <div>
+            <div style={{ marginBottom: 16 }}>
+              <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>Invite players</h2>
+              <p style={{ fontSize: 13, color: 'var(--gray-500)' }}>Share the link or QR code so others can join this round.</p>
+            </div>
+            <div style={{ background: 'var(--green-700)', borderRadius: 'var(--radius-lg)', padding: '16px', color: 'white', marginBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+                <span style={{ fontSize: 13, opacity: 0.7 }}>Join code</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 20, fontWeight: 600, letterSpacing: '0.15em', background: 'rgba(255,255,255,0.15)', padding: '4px 12px', borderRadius: 8 }}>
+                  {round?.join_code}
+                </span>
+              </div>
+              {round?.join_code && <InvitePanel joinCode={round.join_code} />}
+            </div>
+            <div className="card" style={{ background: 'var(--gray-50)' }}>
+              <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>Joining late?</p>
+              <p style={{ fontSize: 13, color: 'var(--gray-500)', lineHeight: 1.5 }}>
+                Players can join at any time while the round is in progress. They'll be prompted to enter their handicap and can score all 18 holes including any already played.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* ── ENTER SCORE TAB ── */}
         {tab === 'Enter' && myPlayer && (
           <div>
-            {/* Invite panel — collapsible */}
-            {round?.join_code && (
-              <details style={{ marginBottom: 20 }}>
-                <summary style={{ fontSize: 13, color: 'var(--gray-500)', cursor: 'pointer', padding: '8px 0', listStyle: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ fontSize: 11, background: 'var(--gray-100)', borderRadius: 10, padding: '2px 8px', color: 'var(--gray-600)', fontWeight: 500 }}>+ Invite players</span>
-                </summary>
-                <InvitePanel joinCode={round.join_code} />
-              </details>
-            )}
             <p style={{ fontSize: 13, color: 'var(--gray-500)', marginBottom: 8 }}>Select hole</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 20 }}>
               {holes.map(hole => {
